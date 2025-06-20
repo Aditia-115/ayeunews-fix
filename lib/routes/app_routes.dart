@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:newshive/views/widgets/bookmark_screen.dart';
 import 'package:newshive/views/widgets/forgot_password_screen.dart';
 import 'package:newshive/views/widgets/login_screen.dart';
+import 'package:newshive/views/widgets/main_screen.dart';
 import 'package:newshive/views/widgets/register_screen.dart';
 import 'package:newshive/views/widgets/splash_screen.dart';
 import '../routes/route_names.dart';
@@ -46,8 +48,14 @@ class AppRouter {
         GoRoute(
           path: '/main',
           name: RouteNames.main,
-          pageBuilder: (_, __) => const MaterialPage(child: Placeholder()),
+          pageBuilder: (_, __) => const MaterialPage(child: MainScreen()),
         ),
+        GoRoute(
+          path: '/bookmark',
+          name: 'bookmark',
+          pageBuilder: (context, state) => MaterialPage(child: BookmarkScreen()),
+        ),
+
       ],
     );
   }
