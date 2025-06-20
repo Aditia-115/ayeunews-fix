@@ -120,7 +120,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.1),
-                      blurRadius: 12,
+                      blurRadius: 10,
                       offset: const Offset(0, -4),
                     ),
                   ],
@@ -188,7 +188,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                                   )
                                   : const Text(
                                     'Confirm Change',
-                                    style: TextStyle(fontSize: 16),
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                    ),
                                   ),
                         ),
                       ),

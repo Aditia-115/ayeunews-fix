@@ -131,12 +131,12 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _menuItem(IconData icon, String label, VoidCallback onTap) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: Icon(icon, color: Colors.black),
-      title: Text(label, style: TextStyle(fontSize: 16.sp)),
-      onTap: onTap,
-    );
-  }
+  // Widget _menuItem(IconData icon, String label, VoidCallback onTap) {
+  //   return ListTile(
+  //     contentPadding: EdgeInsets.zero,
+  //     leading: Icon(icon, color: Colors.black),
+  //     title: Text(label, style: TextStyle(fontSize: 16.sp)),
+  //     onTap: onTap,
+  //   );
+  // }
 }
