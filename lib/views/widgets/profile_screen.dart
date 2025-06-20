@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:newshive/views/widgets/change_password_screen.dart';
 import 'package:newshive/views/widgets/edit_profile_screen.dart';
+import 'package:newshive/views/widgets/login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -16,10 +18,7 @@ class ProfileScreen extends StatelessWidget {
           children: [
             Text(
               'Profile',
-              style: TextStyle(
-                fontSize: 24.sp,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w600),
             ),
             SizedBox(height: 24.h),
 
@@ -37,8 +36,9 @@ class ProfileScreen extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 50.r,
-                        backgroundImage:
-                            const AssetImage('assets/images/avatar.png'),
+                        backgroundImage: const AssetImage(
+                          'assets/images/avatar.png',
+                        ),
                       ),
                       Positioned(
                         right: 0,
@@ -62,8 +62,10 @@ class ProfileScreen extends StatelessWidget {
                   SizedBox(height: 8.h),
                   _profileRow('Number', '+7-445-557-681'),
                   SizedBox(height: 8.h),
-                  _profileRow('Address',
-                      'Ludgate Hill 1, Greater London, London, EC4M 7AA'),
+                  _profileRow(
+                    'Address',
+                    'Ludgate Hill 1, Greater London, London, EC4M 7AA',
+                  ),
                 ],
               ),
             ),
@@ -81,10 +83,35 @@ class ProfileScreen extends StatelessWidget {
                 );
               },
             ),
-            Divider(),
-            _menuItem(Icons.lock_outline, 'Change Password', () {}),
-            Divider(),
-            _menuItem(Icons.logout, 'Logout', () {}),
+            const Divider(), // Pemisah
+            ListTile(
+              leading: const Icon(Icons.lock_outline),
+              title: const Text('Change Password'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ChangePasswordScreen(),
+                  ),
+                );
+              },
+            ),
+            const Divider(), // Pemisah
+            ListTile(
+              leading: const Icon(Icons.lock_outline),
+              title: const Text('Logout'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                );
+              },
+            ),
+            // Divider(),
+            // _menuItem(Icons.lock_outline, 'Change Password', () {}),
+
+            // Divider(),
+            // _menuItem(Icons.logout, 'Logout', () {}),
           ],
         ),
       ),
@@ -99,12 +126,7 @@ class ProfileScreen extends StatelessWidget {
           '$label : ',
           style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
         ),
-        Expanded(
-          child: Text(
-            value,
-            style: TextStyle(fontSize: 14.sp),
-          ),
-        ),
+        Expanded(child: Text(value, style: TextStyle(fontSize: 14.sp))),
       ],
     );
   }
@@ -113,10 +135,7 @@ class ProfileScreen extends StatelessWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Icon(icon, color: Colors.black),
-      title: Text(
-        label,
-        style: TextStyle(fontSize: 16.sp),
-      ),
+      title: Text(label, style: TextStyle(fontSize: 16.sp)),
       onTap: onTap,
     );
   }

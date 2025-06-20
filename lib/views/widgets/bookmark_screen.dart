@@ -110,21 +110,23 @@ class BookmarkScreen extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => const DetailScreen(
-              title: 'KDM: Antara Iket Sunda, "Gubernur Konten", dan Realitas Kepemimpinan',
-              author: 'Aziz Muslim Haruna',
-              date: '23 Mei 2025  13:03',
-              category: 'Politics',
-              content:
-                  'Di panggung politik Jawa Barat, bahkan nasional, nama Kang Dedi Mulyadi (KDM) telah menjadi fenomena tersendiri. '
-                  'Sosoknya, yang kini menjabat Gubernur Jawa Barat, tak bisa dilepaskan dari citra kuat yang dibangunnya selama bertahun-tahun: '
-                  'perpaduan antara penampilan visual yang khas dengan narasi kepemimpinan yang merakyat dan berakar budaya. '
-                  'Namun, di balik popularitas yang meroket, terutama di era media sosial yang menjulukinya "Gubernur Konten", '
-                  'terbentang spektrum persepsi publik yang kompleks, dari puja-puji hingga kritik tajam. '
-                  'Menganalisis citra KDM melalui lensa visualisasi dan konseptualisasi menjadi penting untuk memahami bagaimana ia dipandang, '
-                  'dan apa implikasinya bagi lanskap politik kita.',
-              imagePath: 'assets/images/kdm.jpg',
-            ),
+            builder:
+                (_) => const DetailScreen(
+                  title:
+                      'KDM: Antara Iket Sunda, "Gubernur Konten", dan Realitas Kepemimpinan',
+                  author: 'Aziz Muslim Haruna',
+                  date: '23 Mei 2025  13:03',
+                  category: 'Politics',
+                  content:
+                      'Di panggung politik Jawa Barat, bahkan nasional, nama Kang Dedi Mulyadi (KDM) telah menjadi fenomena tersendiri. '
+                      'Sosoknya, yang kini menjabat Gubernur Jawa Barat, tak bisa dilepaskan dari citra kuat yang dibangunnya selama bertahun-tahun: '
+                      'perpaduan antara penampilan visual yang khas dengan narasi kepemimpinan yang merakyat dan berakar budaya. '
+                      'Namun, di balik popularitas yang meroket, terutama di era media sosial yang menjulukinya "Gubernur Konten", '
+                      'terbentang spektrum persepsi publik yang kompleks, dari puja-puji hingga kritik tajam. '
+                      'Menganalisis citra KDM melalui lensa visualisasi dan konseptualisasi menjadi penting untuk memahami bagaimana ia dipandang, '
+                      'dan apa implikasinya bagi lanskap politik kita.',
+                  imagePath: 'assets/images/kdm.jpg',
+                ),
           ),
         );
       },
@@ -147,7 +149,10 @@ class BookmarkScreen extends StatelessWidget {
               children: [
                 Text(
                   'Warga Bermasalah Bakal Dibina di Barak Militer, KDM: Bulan Juni Sudah Mulai',
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.sp),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14.sp,
+                  ),
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -159,10 +164,7 @@ class BookmarkScreen extends StatelessWidget {
               ],
             ),
           ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.bookmark_border),
-          ),
+          IconButton(onPressed: () {}, icon: const Icon(Icons.bookmark_border)),
         ],
       ),
     );
