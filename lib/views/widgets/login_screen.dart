@@ -43,7 +43,7 @@ class LoginScreen extends StatelessWidget {
               height: 50.h,
               child: ElevatedButton(
                 onPressed: () {
-                  context.goNamed(RouteNames.main);
+                  context.pushNamed(RouteNames.main);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,

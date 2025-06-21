@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
-  const ChangePasswordScreen({Key? key}) : super(key: key);
+  const ChangePasswordScreen({super.key});
 
   @override
   State<ChangePasswordScreen> createState() => _ChangePasswordScreenState();
@@ -26,7 +26,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text("Password berhasil diubah")));
+    ).showSnackBar(const SnackBar(content: Text("Password changed")));
 
     setState(() => _isLoading = false);
     Navigator.pop(context);
@@ -60,58 +60,54 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
-      // backgroundColor: const Color(0xFFEBD8D2),
-      body: SafeArea(
-        child: Column(
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        automaticallyImplyLeading: false,
+        title: Row(
           children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        'Edit Profile',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                  // const SizedBox(width: 8),
-                  // const Text(
-                  //   'Edit Password',
-                  //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-
-                  // ),
-                ],
+            InkWell(
+              onTap: () => Navigator.pop(context),
+              borderRadius: BorderRadius.circular(100),
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFFF0EEE8),
+                ),
+                child: const Icon(Icons.arrow_back),
               ),
             ),
-
-            // Image
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Image.asset(
-                'assets/images/register_illustration.jpg',
-                height: 180,
+            const Expanded(
+              child: Center(
+                child: Text(
+                  'Change Password',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+                ),
               ),
             ),
-
-            // Form Container
-            Expanded(
+            const SizedBox(width: 36), // Space to balance title center
+          ],
+        ),
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Image.asset(
+              'assets/images/register_illustration.jpg',
+              height: 300,
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
                   vertical: 32,
                 ),
-
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: const BorderRadius.vertical(
@@ -119,17 +115,12 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Color.fromRGBO(0, 0, 0, 0.1),
                       blurRadius: 10,
-                      offset: const Offset(0, -4),
+                      offset: Offset(0, -4),
                     ),
                   ],
                 ),
-
-                // decoration: const BoxDecoration(
-                //   color: Colors.white,
-                //   borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-                // ),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -167,9 +158,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           return null;
                         },
                       ),
-                      const Spacer(),
-
-                      // Confirm Button
+                      const SizedBox(height: 32),
                       SizedBox(
                         width: double.infinity,
                         height: 50,
@@ -200,8 +189,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

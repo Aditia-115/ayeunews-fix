@@ -28,6 +28,7 @@ class BookmarkScreen extends StatelessWidget {
         slivers: [
           // Logo AppBar
           SliverAppBar(
+            automaticallyImplyLeading: false,
             pinned: true,
             backgroundColor: Colors.white,
             elevation: 0,
@@ -46,11 +47,13 @@ class BookmarkScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(height: 20.h),
-                  Text(
-                    'Bookmark',
-                    style: TextStyle(
-                      fontSize: 24.sp,
-                      fontWeight: FontWeight.w600,
+                  Center(
+                    child: Text(
+                      'Bookmark',
+                      style: TextStyle(
+                        fontSize: 24.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                   SizedBox(height: 16.h),

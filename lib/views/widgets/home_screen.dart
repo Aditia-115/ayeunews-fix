@@ -34,6 +34,7 @@ class HomeScreen extends StatelessWidget {
         slivers: [
           // AppBar Logo Only
           SliverAppBar(
+            automaticallyImplyLeading: false,
             pinned: true,
             backgroundColor: Colors.white,
             elevation: 0,

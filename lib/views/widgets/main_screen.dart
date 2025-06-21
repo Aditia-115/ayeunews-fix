@@ -26,10 +26,10 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          color: const Color(0xFFFFF7FC), // latar pink muda seperti gambarmu
+          color: const Color(0xFFFFF7FC),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+             color: Color.fromRGBO(0, 0, 0, 0.1),
               blurRadius: 10,
               offset: const Offset(0, -4),
             ),
