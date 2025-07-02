@@ -2,9 +2,17 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:newshive/views/widgets/detail_screen.dart';
+import '../models/artikel.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  final List<Artikel> bookmarkedArticles;
+  final void Function(Artikel) onBookmarkToggled;
+
+  const HomeScreen({
+    super.key,
+    required this.bookmarkedArticles,
+    required this.onBookmarkToggled,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,11 +36,31 @@ class HomeScreen extends StatelessWidget {
       (_) => 'assets/images/hostpur.jpg',
     );
 
+    final demoArticles = [
+      Artikel(
+        id: '001',
+        title:
+            'KDM: Antara Iket Sunda, "Gubernur Konten", dan Realitas Kepemimpinan',
+        author: 'Aziz Muslim Haruna',
+        date: '23 Mei 2025 13:03',
+        category: 'Politics',
+        content:
+            'Di panggung politik Jawa Barat, bahkan nasional, nama Kang Dedi Mulyadi (KDM) telah menjadi fenomena tersendiri. '
+            'Sosoknya, yang kini menjabat Gubernur Jawa Barat, tak bisa dilepaskan dari citra kuat yang dibangunnya selama bertahun-tahun: '
+            'perpaduan antara penampilan visual yang khas dengan narasi kepemimpinan yang merakyat dan berakar budaya. '
+            'Namun, di balik popularitas yang meroket, terutama di era media sosial yang menjulukinya "Gubernur Konten", '
+            'terbentang spektrum persepsi publik yang kompleks, dari puja-puji hingga kritik tajam. '
+            'Menganalisis citra KDM melalui lensa visualisasi dan konseptualisasi menjadi penting untuk memahami bagaimana ia dipandang, '
+            'dan apa implikasinya bagi lanskap politik kita.',
+        imagePath: 'assets/images/kdm.jpg',
+      ),
+    ];
+    final List<Artikel> articles = demoArticles;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: CustomScrollView(
         slivers: [
-          // AppBar Logo Only
           SliverAppBar(
             automaticallyImplyLeading: false,
             pinned: true,
@@ -44,8 +72,6 @@ class HomeScreen extends StatelessWidget {
               child: Image.asset('assets/images/logo.png', height: 32.h),
             ),
           ),
-
-          // Search Bar + Carousel
           SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
@@ -80,19 +106,19 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-
-          // Sticky Categories
           SliverPersistentHeader(
             pinned: true,
             delegate: _CategoryHeader(categories: categories),
           ),
-
-          // News List
           SliverPadding(
             padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
             sliver: SliverList.separated(
-              itemCount: 10,
-              itemBuilder: (context, index) => _buildNewsItem(context),
+              itemCount: articles.length,
+              itemBuilder: (context, index) {
+                final article = articles[index];
+                final isBookmarked = bookmarkedArticles.contains(article);
+                return _buildNewsItem(context, article, isBookmarked);
+              },
               separatorBuilder: (_, __) => SizedBox(height: 16.h),
             ),
           ),
@@ -124,29 +150,26 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildNewsItem(BuildContext context) {
+  Widget _buildNewsItem(
+    BuildContext context,
+    Artikel artikel,
+    bool isBookmarked,
+  ) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder:
-                (_) => const DetailScreen(
-                  title:
-                      'KDM: Antara Iket Sunda, "Gubernur Konten", dan Realitas Kepemimpinan',
-                  author: 'Aziz Muslim Haruna',
-                  date: '23 Mei 2025  13:03',
-                  category: 'Politics',
-                  content:
-                      'Di panggung politik Jawa Barat, bahkan nasional, nama Kang Dedi Mulyadi (KDM) telah menjadi fenomena tersendiri. '
-                      'Sosoknya, yang kini menjabat Gubernur Jawa Barat, tak bisa dilepaskan dari citra kuat yang dibangunnya selama bertahun-tahun: '
-                      'perpaduan antara penampilan visual yang khas dengan narasi kepemimpinan yang merakyat dan berakar budaya. '
-                      'Namun, di balik popularitas yang meroket, terutama di era media sosial yang menjulukinya "Gubernur Konten", '
-                      'terbentang spektrum persepsi publik yang kompleks, dari puja-puji hingga kritik tajam. '
-                      'Menganalisis citra KDM melalui lensa visualisasi dan konseptualisasi menjadi penting untuk memahami bagaimana ia dipandang, '
-                      'dan apa implikasinya bagi lanskap politik kita.',
-                  imagePath: 'assets/images/kdm_2.jpg',
-                ),
+            builder: (_) => DetailScreen(
+              title: artikel.title,
+              author: artikel.author,
+              date: artikel.date,
+              category: artikel.category,
+              content: artikel.content,
+              imagePath: artikel.imagePath,
+              isBookmarked: bookmarkedArticles.contains(artikel),
+              onBookmarkToggle: () => onBookmarkToggled(artikel),
+            ),
           ),
         );
       },
@@ -156,7 +179,7 @@ class HomeScreen extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(12.r),
             child: Image.asset(
-              'assets/images/kdm.jpg',
+              artikel.imagePath,
               width: 90.w,
               height: 90.w,
               fit: BoxFit.cover,
@@ -168,7 +191,7 @@ class HomeScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Warga Bermasalah Bakal Dibina di Barak Militer, KDM: Bulan Juni Sudah Mulai',
+                  artikel.title,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 14.sp,
@@ -178,13 +201,16 @@ class HomeScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 6.h),
                 Text(
-                  'Sabtu, 10 Mei 2025 | 14:20',
+                  artikel.date,
                   style: TextStyle(fontSize: 12.sp, color: Colors.grey[700]),
                 ),
               ],
             ),
           ),
-          IconButton(onPressed: () {}, icon: const Icon(Icons.bookmark_border)),
+          IconButton(
+            icon: Icon(isBookmarked ? Icons.bookmark : Icons.bookmark_border),
+            onPressed: () => onBookmarkToggled(artikel),
+          ),
         ],
       ),
     );
@@ -232,10 +258,8 @@ class _CategoryHeader extends SliverPersistentHeaderDelegate {
 
   @override
   double get maxExtent => 60.h;
-
   @override
   double get minExtent => 60.h;
-
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
       true;

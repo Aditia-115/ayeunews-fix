@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:newshive/views/widgets/add_news_screen.dart';
 import 'package:newshive/views/widgets/change_password_screen.dart';
 import 'package:newshive/views/widgets/edit_profile_screen.dart';
 import 'package:newshive/views/widgets/login_screen.dart';
@@ -70,6 +71,55 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
 
+            SizedBox(height: 24.h),
+
+            SizedBox(
+              width: double.infinity,
+              height: 50.h,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AddNewsScreen()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25.r),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Add News',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(width: 10.w),
+                    Container(
+                      width: 24.w,
+                      height: 24.w,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.add,
+                        color: Colors.blue,
+                        size: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
             SizedBox(height: 32.h),
 
             // Menu
@@ -83,7 +133,7 @@ class ProfileScreen extends StatelessWidget {
                 );
               },
             ),
-            const Divider(), // Pemisah
+            const Divider(),
             ListTile(
               leading: const Icon(Icons.lock_outline),
               title: const Text('Change Password'),
@@ -96,22 +146,17 @@ class ProfileScreen extends StatelessWidget {
                 );
               },
             ),
-            const Divider(), // Pemisah
+            const Divider(),
             ListTile(
-              leading: const Icon(Icons.lock_outline),
+              leading: const Icon(Icons.logout),
               title: const Text('Logout'),
               onTap: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (_) => const LoginScreen()),
                 );
               },
             ),
-            // Divider(),
-            // _menuItem(Icons.lock_outline, 'Change Password', () {}),
-
-            // Divider(),
-            // _menuItem(Icons.logout, 'Logout', () {}),
           ],
         ),
       ),
@@ -130,13 +175,4 @@ class ProfileScreen extends StatelessWidget {
       ],
     );
   }
-
-  // Widget _menuItem(IconData icon, String label, VoidCallback onTap) {
-  //   return ListTile(
-  //     contentPadding: EdgeInsets.zero,
-  //     leading: Icon(icon, color: Colors.black),
-  //     title: Text(label, style: TextStyle(fontSize: 16.sp)),
-  //     onTap: onTap,
-  //   );
-  // }
 }

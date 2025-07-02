@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class DetailScreen extends StatelessWidget {
+class DetailScreen extends StatefulWidget {
   final String title;
   final String author;
   final String date;
   final String category;
   final String content;
   final String imagePath;
+  final bool isBookmarked;
+  final VoidCallback onBookmarkToggle;
 
   const DetailScreen({
     super.key,
@@ -17,7 +19,29 @@ class DetailScreen extends StatelessWidget {
     required this.category,
     required this.content,
     required this.imagePath,
+    required this.isBookmarked,
+    required this.onBookmarkToggle,
   });
+
+  @override
+  State<DetailScreen> createState() => _DetailScreenState();
+}
+
+class _DetailScreenState extends State<DetailScreen> {
+  late bool _isBookmarked;
+
+  @override
+  void initState() {
+    super.initState();
+    _isBookmarked = widget.isBookmarked;
+  }
+
+  void _handleBookmarkToggle() {
+    widget.onBookmarkToggle();
+    setState(() {
+      _isBookmarked = !_isBookmarked;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,9 +72,12 @@ class DetailScreen extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
-                      icon: const Icon(Icons.bookmark_border),
-                      onPressed: () {
-                      },
+                      icon: Icon(
+                        _isBookmarked
+                            ? Icons.bookmark
+                            : Icons.bookmark_border,
+                      ),
+                      onPressed: _handleBookmarkToggle,
                     ),
                   ),
                 ],
@@ -61,7 +88,7 @@ class DetailScreen extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(16.r),
               child: Image.asset(
-                imagePath,
+                widget.imagePath,
                 width: double.infinity,
                 height: 180.h,
                 fit: BoxFit.cover,
@@ -76,44 +103,33 @@ class DetailScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          
-                          Expanded(
-                            child: Text(
-                              title,
-                              style: TextStyle(
-                                fontSize: 18.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              maxLines: null,
-                            ),
-                          ),
-                        ],
+                      Text(
+                        widget.title,
+                        style: TextStyle(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       SizedBox(height: 12.h),
 
-                      // Author and metadata
                       Text(
-                        'Oleh; $author',
+                        'Oleh: ${widget.author}',
                         style: TextStyle(fontSize: 12.sp, color: Colors.grey[800]),
                       ),
                       SizedBox(height: 4.h),
                       Text(
-                        date,
+                        widget.date,
                         style: TextStyle(fontSize: 12.sp, color: Colors.grey[800]),
                       ),
                       SizedBox(height: 4.h),
                       Text(
-                        category,
+                        widget.category,
                         style: TextStyle(fontSize: 12.sp, color: Colors.grey[800]),
                       ),
-
                       SizedBox(height: 16.h),
 
                       Text(
-                        content,
+                        widget.content,
                         style: TextStyle(fontSize: 14.sp, height: 1.6),
                       ),
                     ],
