@@ -151,9 +151,11 @@ class ProfileScreen extends StatelessWidget {
               leading: const Icon(Icons.logout),
               title: const Text('Logout'),
               onTap: () {
-                Navigator.pushReplacement(
+                Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  MaterialPageRoute(
+                    builder: (_) => const LoginScreen(),
+                  ),
                 );
               },
             ),

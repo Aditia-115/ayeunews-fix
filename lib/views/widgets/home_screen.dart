@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:newshive/views/widgets/detail_screen.dart';
 import '../models/artikel.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   final List<Artikel> bookmarkedArticles;
   final void Function(Artikel) onBookmarkToggled;
 
@@ -15,47 +15,53 @@ class HomeScreen extends StatelessWidget {
   });
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String query = '';
+  String selectedCategory = 'All';
+
+  final List<String> categories = [
+    'All',
+    'Business',
+    'Crime',
+    'Education',
+    'Entertainment',
+    'Health',
+    'Lifestyle',
+    'Politic',
+    'Science',
+    'Sport',
+    'Technology',
+    'Travel',
+  ];
+
+  final List<String> carouselImages = List.generate(
+    3,
+    (_) => 'assets/images/hostpur.jpg',
+  );
+
+  final demoArticles = [
+    Artikel(
+      id: '001',
+      title: 'KDM: Antara Iket Sunda, "Gubernur Konten", dan Realitas Kepemimpinan',
+      author: 'Aziz Muslim Haruna',
+      date: '23 Mei 2025 13:03',
+      category: 'Politics',
+      content: '...',
+      imagePath: 'assets/images/kdm.jpg',
+    ),
+    // Tambahkan artikel tambahan jika perlu
+  ];
+
+  @override
   Widget build(BuildContext context) {
-    final List<String> categories = [
-      'All',
-      'Business',
-      'Crime',
-      'Education',
-      'Entertainment',
-      'Health',
-      'Lifestyle',
-      'Politic',
-      'Science',
-      'Sport',
-      'Technology',
-      'Travel',
-    ];
-
-    final List<String> carouselImages = List.generate(
-      3,
-      (_) => 'assets/images/hostpur.jpg',
-    );
-
-    final demoArticles = [
-      Artikel(
-        id: '001',
-        title:
-            'KDM: Antara Iket Sunda, "Gubernur Konten", dan Realitas Kepemimpinan',
-        author: 'Aziz Muslim Haruna',
-        date: '23 Mei 2025 13:03',
-        category: 'Politics',
-        content:
-            'Di panggung politik Jawa Barat, bahkan nasional, nama Kang Dedi Mulyadi (KDM) telah menjadi fenomena tersendiri. '
-            'Sosoknya, yang kini menjabat Gubernur Jawa Barat, tak bisa dilepaskan dari citra kuat yang dibangunnya selama bertahun-tahun: '
-            'perpaduan antara penampilan visual yang khas dengan narasi kepemimpinan yang merakyat dan berakar budaya. '
-            'Namun, di balik popularitas yang meroket, terutama di era media sosial yang menjulukinya "Gubernur Konten", '
-            'terbentang spektrum persepsi publik yang kompleks, dari puja-puji hingga kritik tajam. '
-            'Menganalisis citra KDM melalui lensa visualisasi dan konseptualisasi menjadi penting untuk memahami bagaimana ia dipandang, '
-            'dan apa implikasinya bagi lanskap politik kita.',
-        imagePath: 'assets/images/kdm.jpg',
-      ),
-    ];
-    final List<Artikel> articles = demoArticles;
+    final filteredArticles = demoArticles.where((artikel) {
+      final matchQuery = artikel.title.toLowerCase().contains(query.toLowerCase());
+      final matchCategory = selectedCategory == 'All' || artikel.category == selectedCategory;
+      return matchQuery && matchCategory;
+    }).toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -72,6 +78,8 @@ class HomeScreen extends StatelessWidget {
               child: Image.asset('assets/images/logo.png', height: 32.h),
             ),
           ),
+
+          // Search & Carousel
           SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
@@ -106,20 +114,54 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: _CategoryHeader(categories: categories),
+
+          // Updated Category Header
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              child: SizedBox(
+                height: 40.h,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: categories.length,
+                  separatorBuilder: (_, __) => SizedBox(width: 10.w),
+                  itemBuilder: (_, index) {
+                    final cat = categories[index];
+                    final isSelected = cat == selectedCategory;
+                    return GestureDetector(
+                      onTap: () => setState(() => selectedCategory = cat),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: isSelected ? Colors.blue : const Color(0xFFF0EEE8),
+                          borderRadius: BorderRadius.circular(20.r),
+                        ),
+                        child: Text(
+                          cat,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: isSelected ? Colors.white : Colors.black,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
           ),
+
           SliverPadding(
             padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
             sliver: SliverList.separated(
-              itemCount: articles.length,
+              itemCount: filteredArticles.length,
+              separatorBuilder: (_, __) => SizedBox(height: 16.h),
               itemBuilder: (context, index) {
-                final article = articles[index];
-                final isBookmarked = bookmarkedArticles.contains(article);
+                final article = filteredArticles[index];
+                final isBookmarked = widget.bookmarkedArticles.contains(article);
                 return _buildNewsItem(context, article, isBookmarked);
               },
-              separatorBuilder: (_, __) => SizedBox(height: 16.h),
             ),
           ),
         ],
@@ -139,9 +181,17 @@ class HomeScreen extends StatelessWidget {
           const Icon(Icons.search, color: Colors.black),
           SizedBox(width: 10.w),
           Expanded(
-            child: Text(
-              'Search',
-              style: TextStyle(color: Colors.grey[700], fontSize: 14.sp),
+            child: TextField(
+              onChanged: (val) => setState(() => query = val),
+              decoration: InputDecoration(
+                hintText: 'Search',
+                border: InputBorder.none,
+                isDense: true,
+                hintStyle: TextStyle(
+                  color: Colors.grey[700],
+                  fontSize: 14.sp,
+                ),
+              ),
             ),
           ),
           const Icon(Icons.tune, color: Colors.black),
@@ -150,11 +200,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildNewsItem(
-    BuildContext context,
-    Artikel artikel,
-    bool isBookmarked,
-  ) {
+  Widget _buildNewsItem(BuildContext context, Artikel artikel, bool isBookmarked) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -167,8 +213,8 @@ class HomeScreen extends StatelessWidget {
               category: artikel.category,
               content: artikel.content,
               imagePath: artikel.imagePath,
-              isBookmarked: bookmarkedArticles.contains(artikel),
-              onBookmarkToggle: () => onBookmarkToggled(artikel),
+              isBookmarked: widget.bookmarkedArticles.contains(artikel),
+              onBookmarkToggle: () => widget.onBookmarkToggled(artikel),
             ),
           ),
         );
@@ -209,58 +255,10 @@ class HomeScreen extends StatelessWidget {
           ),
           IconButton(
             icon: Icon(isBookmarked ? Icons.bookmark : Icons.bookmark_border),
-            onPressed: () => onBookmarkToggled(artikel),
+            onPressed: () => widget.onBookmarkToggled(artikel),
           ),
         ],
       ),
     );
   }
-}
-
-class _CategoryHeader extends SliverPersistentHeaderDelegate {
-  final List<String> categories;
-  _CategoryHeader({required this.categories});
-
-  @override
-  Widget build(context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      color: Colors.white,
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-      alignment: Alignment.centerLeft,
-      child: SizedBox(
-        height: 40.h,
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          itemCount: categories.length,
-          separatorBuilder: (_, __) => SizedBox(width: 8.w),
-          itemBuilder: (context, index) {
-            final isSelected = index == 0;
-            return Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: isSelected ? Colors.blue : const Color(0xFFF0EEE8),
-                borderRadius: BorderRadius.circular(20.r),
-              ),
-              child: Text(
-                categories[index],
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: isSelected ? Colors.white : Colors.black,
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  @override
-  double get maxExtent => 60.h;
-  @override
-  double get minExtent => 60.h;
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
-      true;
 }
