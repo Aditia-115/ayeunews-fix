@@ -10,147 +10,140 @@ class AddNewsScreen extends StatefulWidget {
 
 class _AddNewsScreenState extends State<AddNewsScreen> {
   final _formKey = GlobalKey<FormState>();
-
+  final TextEditingController _imageController = TextEditingController();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _categoryController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
   @override
+  void dispose() {
+    _imageController.dispose();
+    _titleController.dispose();
+    _categoryController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true, // penting!
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        automaticallyImplyLeading: false,
-        title: Row(
-          children: [
-            InkWell(
-              onTap: () => Navigator.pop(context),
-              borderRadius: BorderRadius.circular(100),
-              child: Container(
-                padding: EdgeInsets.all(10),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF0EEE8),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.arrow_back),
-              ),
-            ),
-            Expanded(
-              child: Center(
-                child: Text(
-                  'Add News',
-                  style:
-                      TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w600),
-                ),
-              ),
-            ),
-            const SizedBox(width: 36), // placeholder to center title
-          ],
-        ),
-      ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                Container(
-                  height: 180.h,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF0EEE8),
-                    borderRadius: BorderRadius.circular(20.r),
+        child: Column(
+          children: [
+            // Header
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+              child: Row(
+                children: [
+                  InkWell(
+                    onTap: () => Navigator.pop(context),
+                    borderRadius: BorderRadius.circular(100),
+                    child: Container(
+                      padding: EdgeInsets.all(10.w),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFF0EEE8),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.arrow_back),
+                    ),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.add_circle_outline,
-                          size: 36, color: Colors.grey),
-                      SizedBox(height: 6.h),
-                      Text(
-                        'Add a photo',
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        'Add News',
                         style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 14.sp,
+                          fontSize: 24.sp,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
+                    ),
+                  ),
+                  SizedBox(width: 40.w), // balance center title
+                ],
+              ),
+            ),
+
+            // Form
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      _buildTextField(_imageController, 'URL Picture'),
+                      SizedBox(height: 12.h),
+                      _buildTextField(_titleController, 'Title'),
+                      SizedBox(height: 12.h),
+                      _buildTextField(_categoryController, 'Category'),
+                      SizedBox(height: 12.h),
+                      _buildTextField(_descriptionController, 'Description', maxLines: 5),
                     ],
                   ),
                 ),
-                SizedBox(height: 20.h),
-                _buildTextField(_titleController, 'title'),
-                SizedBox(height: 12.h),
-                _buildTextField(_categoryController, 'Category'),
-                SizedBox(height: 12.h),
-                _buildTextField(
-                  _descriptionController,
-                  'Description',
-                  maxLines: 5,
+              ),
+            ),
+
+            // Submit Button
+            Container(
+              padding: EdgeInsets.only(
+                bottom: 20.h,
+                left: 20.w,
+                right: 20.w,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  top: BorderSide(
+                    color: Color.fromRGBO(158, 158, 158, 0.2),
+                  ),
                 ),
-                SizedBox(height: 150.h),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50.h,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24.r),
-                      ),
-                    ),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('News published successfully'),
-                          ),
-                        );
-                      }
-                    },
-                    child: Text(
-                      'Publish Now',
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
+              ),
+              child: SizedBox(
+                width: double.infinity,
+                height: 56.h,
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.r),
                     ),
                   ),
-                )
-              ],
+                  child: Text(
+                    'Publish News',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint,
-      {int maxLines = 1}) {
+  Widget _buildTextField(TextEditingController controller, String hintText, {int maxLines = 1}) {
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
-      validator: (val) => val == null || val.isEmpty ? 'Required' : null,
       decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyle(color: Colors.grey),
+        hintText: hintText,
         contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20.r),
         ),
       ),
+      validator: (value) =>
+          value == null || value.trim().isEmpty ? 'This field is required' : null,
     );
-  }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _categoryController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
   }
 }

@@ -49,7 +49,13 @@ class _HomeScreenState extends State<HomeScreen> {
       author: 'Aziz Muslim Haruna',
       date: '23 Mei 2025 13:03',
       category: 'Politics',
-      content: '...',
+      content: 'Di panggung politik Jawa Barat, bahkan nasional, nama Kang Dedi Mulyadi (KDM) telah menjadi fenomena tersendiri. '
+            'Sosoknya, yang kini menjabat Gubernur Jawa Barat, tak bisa dilepaskan dari citra kuat yang dibangunnya selama bertahun-tahun: '
+            'perpaduan antara penampilan visual yang khas dengan narasi kepemimpinan yang merakyat dan berakar budaya. '
+            'Namun, di balik popularitas yang meroket, terutama di era media sosial yang menjulukinya "Gubernur Konten", '
+            'terbentang spektrum persepsi publik yang kompleks, dari puja-puji hingga kritik tajam. '
+            'Menganalisis citra KDM melalui lensa visualisasi dan konseptualisasi menjadi penting untuk memahami bagaimana ia dipandang, '
+            'dan apa implikasinya bagi lanskap politik kita.',
       imagePath: 'assets/images/kdm.jpg',
     ),
     // Tambahkan artikel tambahan jika perlu

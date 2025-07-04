@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:newshive/views/widgets/add_news_screen.dart';
 import 'package:newshive/views/widgets/change_password_screen.dart';
 import 'package:newshive/views/widgets/edit_profile_screen.dart';
 import 'package:newshive/views/widgets/login_screen.dart';
+import 'package:newshive/views/widgets/news_list_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -45,12 +45,7 @@ class ProfileScreen extends StatelessWidget {
                         right: 0,
                         bottom: 4,
                         child: Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
                           padding: EdgeInsets.all(6.w),
-                          child: const Icon(Icons.edit, size: 16),
                         ),
                       ),
                     ],
@@ -70,57 +65,39 @@ class ProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
-
             SizedBox(height: 24.h),
 
+            // Add News Button
             SizedBox(
               width: double.infinity,
               height: 50.h,
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const AddNewsScreen()),
-                  );
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const NewsListScreen(),
+                  ),
+                );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25.r),
+                    borderRadius: BorderRadius.circular(12.r),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 24.w),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Add News',
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                    SizedBox(width: 10.w),
-                    Container(
-                      width: 24.w,
-                      height: 24.w,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.add,
-                        color: Colors.blue,
-                        size: 16,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  'News List',
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
 
-            SizedBox(height: 32.h),
+            SizedBox(height: 24.h),
 
             // Menu
             ListTile(
@@ -153,9 +130,7 @@ class ProfileScreen extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => const LoginScreen(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
                 );
               },
             ),
