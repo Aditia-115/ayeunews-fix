@@ -336,7 +336,7 @@ class _NewsListScreenState extends State<NewsListScreen> {
             },
             icon: const Icon(Icons.add_circle_outline, color: Colors.white),
             label: const Text(
-              'Add news',
+              'Add News',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,

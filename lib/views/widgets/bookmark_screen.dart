@@ -65,6 +65,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                   ),
                 ),
               ),
+
               SizedBox(height: 16.h),
 
               // 🔍 Search Bar

@@ -31,6 +31,8 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
     'Travel',
   ];
 
+  final String _defaultImageUrl = 'https://via.placeholder.com/150';
+
   @override
   void dispose() {
     _imageController.dispose();
@@ -46,15 +48,19 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
 
   Future<void> _submitNews() async {
     if (_formKey.currentState!.validate()) {
+      final imageUrl =
+          _imageController.text.trim().isEmpty
+              ? _defaultImageUrl
+              : _imageController.text.trim();
+
       final success = await ArtikelService.addNews(
         title: _titleController.text.trim(),
         category: _selectedCategory!,
         content: _descriptionController.text.trim(),
-        imageUrl: _imageController.text.trim(),
+        imageUrl: imageUrl,
       );
 
       if (!mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -62,7 +68,6 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
           ),
         ),
       );
-
       if (success) Navigator.pop(context);
     }
   }
@@ -74,7 +79,6 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
               child: Row(
@@ -106,8 +110,6 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
                 ],
               ),
             ),
-
-            // Form
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
@@ -115,27 +117,33 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
                   key: _formKey,
                   child: Column(
                     children: [
-                      _buildTextField(
+                      TextFormField(
                         controller: _imageController,
-                        hintText: 'URL Picture',
+                        decoration: InputDecoration(
+                          hintText: 'URL Picture (optional)',
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 14.h,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20.r),
+                          ),
+                        ),
                         validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'URL gambar wajib diisi';
-                          }
-                          if (!_isValidUrl(value.trim())) {
-                            return 'Masukkan URL gambar yang valid';
+                          if (value != null &&
+                              value.isNotEmpty &&
+                              !_isValidUrl(value)) {
+                            return 'Masukkan URL gambar yang valid atau kosongkan';
                           }
                           return null;
                         },
                       ),
                       SizedBox(height: 12.h),
-
                       _buildTextField(
                         controller: _titleController,
                         hintText: 'Title',
                       ),
                       SizedBox(height: 12.h),
-
                       DropdownButtonFormField<String>(
                         value: _selectedCategory,
                         isExpanded: true,
@@ -150,19 +158,20 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
                           ),
                         ),
                         items:
-                            categories.map((category) {
-                              return DropdownMenuItem<String>(
-                                value: category,
-                                child: Text(category),
-                              );
-                            }).toList(),
+                            categories
+                                .map(
+                                  (c) => DropdownMenuItem(
+                                    value: c,
+                                    child: Text(c),
+                                  ),
+                                )
+                                .toList(),
                         onChanged:
                             (val) => setState(() => _selectedCategory = val),
                         validator:
                             (val) => val == null ? 'Pilih kategori' : null,
                       ),
                       SizedBox(height: 12.h),
-
                       _buildTextField(
                         controller: _descriptionController,
                         hintText: 'Description',
@@ -173,8 +182,6 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
                 ),
               ),
             ),
-
-            // Submit Button
             Container(
               padding: EdgeInsets.only(bottom: 20.h, left: 20.w, right: 20.w),
               decoration: BoxDecoration(
@@ -199,9 +206,9 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
                   child: Text(
                     'Publish News',
                     style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                       color: Colors.white,
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -229,10 +236,11 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
       ),
       validator:
           validator ??
-          (value) =>
-              value == null || value.trim().isEmpty
-                  ? 'Field wajib diisi'
-                  : null,
+          (value) {
+            if (value == null || value.trim().isEmpty)
+              return 'Field wajib diisi';
+            return null;
+          },
     );
   }
 }

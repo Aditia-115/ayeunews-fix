@@ -27,18 +27,25 @@ class ArtikelService {
   }) async {
     final url = Uri.parse('$_baseUrl/api/news');
 
+    final payload = {
+      'title': title,
+      'category': category,
+      'content': content,
+      'featured_image_url': imageUrl,
+    };
+
+    print('🔼 Mengirim berita baru: ${jsonEncode(payload)}');
+
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'title': title,
-        'category': category,
-        'content': content,
-        'featured_image_url': imageUrl,
-      }),
+      body: jsonEncode(payload),
     );
 
-    return response.statusCode == 201;
+    print('✅ Status addNews: ${response.statusCode}');
+    print('✅ Body response: ${response.body}');
+
+    return response.statusCode == 201 || response.statusCode == 200;
   }
 
   /// Perbarui (Edit) artikel berdasarkan ID (Update)
@@ -51,26 +58,40 @@ class ArtikelService {
   }) async {
     final url = Uri.parse('$_baseUrl/api/news/$id');
 
+    final payload = {
+      'title': title,
+      'category': category,
+      'content': content,
+      'featured_image_url': imageUrl,
+    };
+
+    print('✏️ Mengupdate berita ID $id: ${jsonEncode(payload)}');
+
     final response = await http.put(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'title': title,
-        'category': category,
-        'content': content,
-        'featured_image_url': imageUrl,
-      }),
+      body: jsonEncode(payload),
     );
+
+    print('✅ Status update: ${response.statusCode}');
+    print('✅ Body response: ${response.body}');
 
     return response.statusCode == 200;
   }
 
   /// Hapus artikel berdasarkan ID (Delete)
   static Future<void> deleteArtikel(String id) async {
-    final response = await http.delete(Uri.parse('$_baseUrl/api/news/$id'));
+    final url = Uri.parse('$_baseUrl/api/news/$id');
+
+    print('🗑️ Menghapus artikel ID: $id');
+
+    final response = await http.delete(url);
 
     if (response.statusCode != 200) {
+      print('❌ Gagal menghapus: ${response.statusCode}');
       throw Exception('Gagal menghapus artikel');
+    } else {
+      print('✅ Artikel berhasil dihapus');
     }
   }
 }

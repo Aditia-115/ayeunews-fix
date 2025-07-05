@@ -44,9 +44,7 @@ class ProfileScreen extends StatelessWidget {
                       Positioned(
                         right: 0,
                         bottom: 4,
-                        child: Container(
-                          padding: EdgeInsets.all(6.w),
-                        ),
+                        child: Container(padding: EdgeInsets.all(6.w)),
                       ),
                     ],
                   ),
@@ -74,11 +72,9 @@ class ProfileScreen extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const NewsListScreen(),
-                  ),
-                );
+                    context,
+                    MaterialPageRoute(builder: (_) => const NewsListScreen()),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
@@ -89,7 +85,7 @@ class ProfileScreen extends StatelessWidget {
                 child: Text(
                   'News List',
                   style: TextStyle(
-                    fontSize: 16.sp,
+                    fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
