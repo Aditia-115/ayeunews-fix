@@ -35,11 +35,15 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredBookmarks = widget.bookmarks.where((artikel) {
-      final matchQuery = artikel.title.toLowerCase().contains(query.toLowerCase());
-      final matchCategory = selectedCategory == 'All' || artikel.category == selectedCategory;
-      return matchQuery && matchCategory;
-    }).toList();
+    final filteredBookmarks =
+        widget.bookmarks.where((artikel) {
+          final matchQuery = artikel.title.toLowerCase().contains(
+            query.toLowerCase(),
+          );
+          final matchCategory =
+              selectedCategory == 'All' || artikel.category == selectedCategory;
+          return matchQuery && matchCategory;
+        }).toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -110,7 +114,10 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                         padding: EdgeInsets.symmetric(horizontal: 16.w),
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: isSelected ? Colors.blue : const Color(0xFFF0EEE8),
+                          color:
+                              isSelected
+                                  ? Colors.blue
+                                  : const Color(0xFFF0EEE8),
                           borderRadius: BorderRadius.circular(20.r),
                         ),
                         child: Text(
@@ -149,16 +156,20 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => DetailScreen(
-                                title: artikel.title,
-                                author: artikel.author,
-                                date: artikel.date,
-                                category: artikel.category,
-                                content: artikel.content,
-                                imagePath: artikel.imagePath,
-                                isBookmarked: widget.bookmarks.contains(artikel),
-                                onBookmarkToggle: () => widget.onBookmarkRemoved(artikel),
-                              ),
+                              builder:
+                                  (_) => DetailScreen(
+                                    title: artikel.title,
+                                    author: artikel.author,
+                                    date: artikel.date,
+                                    category: artikel.category,
+                                    content: artikel.content,
+                                    imagePath: artikel.imagePath,
+                                    isBookmarked: widget.bookmarks.contains(
+                                      artikel,
+                                    ),
+                                    onBookmarkToggle:
+                                        () => widget.onBookmarkRemoved(artikel),
+                                  ),
                             ),
                           );
                         },
@@ -167,11 +178,19 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(12.r),
-                              child: Image.asset(
+                              child: Image.network(
                                 artikel.imagePath,
                                 width: 90.w,
                                 height: 90.w,
                                 fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    width: 90.w,
+                                    height: 90.w,
+                                    color: Colors.grey[300],
+                                    child: const Icon(Icons.broken_image),
+                                  );
+                                },
                               ),
                             ),
                             SizedBox(width: 12.w),
@@ -200,7 +219,8 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                               ),
                             ),
                             IconButton(
-                              onPressed: () => widget.onBookmarkRemoved(artikel),
+                              onPressed:
+                                  () => widget.onBookmarkRemoved(artikel),
                               icon: const Icon(Icons.bookmark),
                             ),
                           ],

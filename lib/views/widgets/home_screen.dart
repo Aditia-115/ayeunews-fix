@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:newshive/views/widgets/detail_screen.dart';
+import 'package:newshive/services/news_service.dart';
 import '../models/artikel.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -19,6 +20,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late Future<List<Artikel>> _artikelFuture;
   String query = '';
   String selectedCategory = 'All';
 
@@ -37,38 +39,14 @@ class _HomeScreenState extends State<HomeScreen> {
     'Travel',
   ];
 
-  final List<String> carouselImages = List.generate(
-    3,
-    (_) => 'assets/images/hostpur.jpg',
-  );
-
-  final demoArticles = [
-    Artikel(
-      id: '001',
-      title: 'KDM: Antara Iket Sunda, "Gubernur Konten", dan Realitas Kepemimpinan',
-      author: 'Aziz Muslim Haruna',
-      date: '23 Mei 2025 13:03',
-      category: 'Politics',
-      content: 'Di panggung politik Jawa Barat, bahkan nasional, nama Kang Dedi Mulyadi (KDM) telah menjadi fenomena tersendiri. '
-            'Sosoknya, yang kini menjabat Gubernur Jawa Barat, tak bisa dilepaskan dari citra kuat yang dibangunnya selama bertahun-tahun: '
-            'perpaduan antara penampilan visual yang khas dengan narasi kepemimpinan yang merakyat dan berakar budaya. '
-            'Namun, di balik popularitas yang meroket, terutama di era media sosial yang menjulukinya "Gubernur Konten", '
-            'terbentang spektrum persepsi publik yang kompleks, dari puja-puji hingga kritik tajam. '
-            'Menganalisis citra KDM melalui lensa visualisasi dan konseptualisasi menjadi penting untuk memahami bagaimana ia dipandang, '
-            'dan apa implikasinya bagi lanskap politik kita.',
-      imagePath: 'assets/images/kdm.jpg',
-    ),
-    // Tambahkan artikel tambahan jika perlu
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _artikelFuture = ArtikelService.fetchArtikel();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final filteredArticles = demoArticles.where((artikel) {
-      final matchQuery = artikel.title.toLowerCase().contains(query.toLowerCase());
-      final matchCategory = selectedCategory == 'All' || artikel.category == selectedCategory;
-      return matchQuery && matchCategory;
-    }).toList();
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: CustomScrollView(
@@ -85,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // Search & Carousel
+          // Search & Carousel from Artikel
           SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
@@ -94,26 +72,63 @@ class _HomeScreenState extends State<HomeScreen> {
                   SizedBox(height: 12.h),
                   _buildSearchBar(),
                   SizedBox(height: 20.h),
-                  CarouselSlider.builder(
-                    itemCount: carouselImages.length,
-                    itemBuilder: (context, index, _) {
-                      return ClipRRect(
-                        borderRadius: BorderRadius.circular(16.r),
-                        child: Image.asset(
-                          carouselImages[index],
-                          width: double.infinity,
-                          fit: BoxFit.cover,
+                  FutureBuilder<List<Artikel>>(
+                    future: _artikelFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
+
+                      final carouselArticles = snapshot.data!.take(5).toList();
+                      return CarouselSlider.builder(
+                        itemCount: carouselArticles.length,
+                        itemBuilder: (context, index, _) {
+                          final artikel = carouselArticles[index];
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (_) => DetailScreen(
+                                        title: artikel.title,
+                                        author: artikel.author,
+                                        date: artikel.date,
+                                        category: artikel.category,
+                                        content: artikel.content,
+                                        imagePath: artikel.imagePath,
+                                        isBookmarked: widget.bookmarkedArticles
+                                            .contains(artikel),
+                                        onBookmarkToggle:
+                                            () => widget.onBookmarkToggled(
+                                              artikel,
+                                            ),
+                                      ),
+                                ),
+                              );
+                            },
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16.r),
+                              child: Image.network(
+                                artikel.imagePath,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          );
+                        },
+                        options: CarouselOptions(
+                          height: 180.h,
+                          autoPlay: true,
+                          enlargeCenterPage: true,
+                          viewportFraction: 0.9,
+                          autoPlayInterval: const Duration(seconds: 4),
+                          autoPlayCurve: Curves.easeInOut,
                         ),
                       );
                     },
-                    options: CarouselOptions(
-                      height: 180.h,
-                      autoPlay: true,
-                      enlargeCenterPage: true,
-                      viewportFraction: 0.9,
-                      autoPlayInterval: const Duration(seconds: 4),
-                      autoPlayCurve: Curves.easeInOut,
-                    ),
                   ),
                   SizedBox(height: 20.h),
                 ],
@@ -121,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // Updated Category Header
+          // Category Filter
           SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
@@ -140,7 +155,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         padding: EdgeInsets.symmetric(horizontal: 16.w),
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: isSelected ? Colors.blue : const Color(0xFFF0EEE8),
+                          color:
+                              isSelected
+                                  ? Colors.blue
+                                  : const Color(0xFFF0EEE8),
                           borderRadius: BorderRadius.circular(20.r),
                         ),
                         child: Text(
@@ -158,16 +176,48 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
-            sliver: SliverList.separated(
-              itemCount: filteredArticles.length,
-              separatorBuilder: (_, __) => SizedBox(height: 16.h),
-              itemBuilder: (context, index) {
-                final article = filteredArticles[index];
-                final isBookmarked = widget.bookmarkedArticles.contains(article);
-                return _buildNewsItem(context, article, isBookmarked);
-              },
+          // News List
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+              child: FutureBuilder<List<Artikel>>(
+                future: _artikelFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(child: Text('Tidak ada berita'));
+                  }
+
+                  final allArticles = snapshot.data!;
+                  final filteredArticles =
+                      allArticles.where((artikel) {
+                        final matchQuery = artikel.title.toLowerCase().contains(
+                          query.toLowerCase(),
+                        );
+                        final matchCategory =
+                            selectedCategory == 'All' ||
+                            artikel.category == selectedCategory;
+                        return matchQuery && matchCategory;
+                      }).toList();
+
+                  return ListView.separated(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: filteredArticles.length,
+                    separatorBuilder: (_, __) => SizedBox(height: 16.h),
+                    itemBuilder: (context, index) {
+                      final artikel = filteredArticles[index];
+                      final isBookmarked = widget.bookmarkedArticles.contains(
+                        artikel,
+                      );
+                      return _buildNewsItem(context, artikel, isBookmarked);
+                    },
+                  );
+                },
+              ),
             ),
           ),
         ],
@@ -193,10 +243,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 hintText: 'Search',
                 border: InputBorder.none,
                 isDense: true,
-                hintStyle: TextStyle(
-                  color: Colors.grey[700],
-                  fontSize: 14.sp,
-                ),
+                hintStyle: TextStyle(color: Colors.grey[700], fontSize: 14.sp),
               ),
             ),
           ),
@@ -206,22 +253,27 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildNewsItem(BuildContext context, Artikel artikel, bool isBookmarked) {
+  Widget _buildNewsItem(
+    BuildContext context,
+    Artikel artikel,
+    bool isBookmarked,
+  ) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => DetailScreen(
-              title: artikel.title,
-              author: artikel.author,
-              date: artikel.date,
-              category: artikel.category,
-              content: artikel.content,
-              imagePath: artikel.imagePath,
-              isBookmarked: widget.bookmarkedArticles.contains(artikel),
-              onBookmarkToggle: () => widget.onBookmarkToggled(artikel),
-            ),
+            builder:
+                (_) => DetailScreen(
+                  title: artikel.title,
+                  author: artikel.author,
+                  date: artikel.date,
+                  category: artikel.category,
+                  content: artikel.content,
+                  imagePath: artikel.imagePath,
+                  isBookmarked: isBookmarked,
+                  onBookmarkToggle: () => widget.onBookmarkToggled(artikel),
+                ),
           ),
         );
       },
@@ -230,7 +282,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12.r),
-            child: Image.asset(
+            child: Image.network(
               artikel.imagePath,
               width: 90.w,
               height: 90.w,

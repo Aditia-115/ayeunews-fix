@@ -1,27 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:newshive/services/news_service.dart';
 import 'package:newshive/views/models/artikel.dart';
+import 'package:newshive/views/widgets/add_news_screen.dart';
 import 'package:newshive/views/widgets/edit_news_screen.dart';
-import 'add_news_screen.dart';
 
-class NewsListScreen extends StatelessWidget {
+class NewsListScreen extends StatefulWidget {
   const NewsListScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final List<Artikel> newsList = [
-      Artikel(
-        id: '001',
-        title:
-            'Warga Bermasalah Bakal Dibina di Barak Militer, KDM: Bulan Juni Sudah Mulai',
-        author: 'Aziz Muslim Haruna',
-        date: 'Sabtu, 10 Mei 2025 | 14:20',
-        category: 'Politics',
-        content: '',
-        imagePath: 'assets/images/kdm.jpg',
-      ),
-    ];
+  State<NewsListScreen> createState() => _NewsListScreenState();
+}
 
+class _NewsListScreenState extends State<NewsListScreen> {
+  late Future<List<Artikel>> _artikelFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _artikelFuture = ArtikelService.fetchArtikel();
+  }
+
+  void _refreshList() {
+    setState(() {
+      _artikelFuture = ArtikelService.fetchArtikel();
+    });
+  }
+
+  Future<void> _deleteArtikel(BuildContext context, String id) async {
+    Navigator.pop(context);
+    try {
+      await ArtikelService.deleteArtikel(id);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Berita berhasil dihapus')));
+      _refreshList();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Gagal hapus: $e')));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -58,181 +84,229 @@ class NewsListScreen extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 20.h),
-              ...newsList.map(
-                (news) => Container(
-                  margin: EdgeInsets.only(bottom: 16.h),
-                  padding: EdgeInsets.all(12.w),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black),
-                    borderRadius: BorderRadius.circular(20.r),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(12.r),
-                            child: Image.asset(
-                              news.imagePath,
-                              width: 80.w,
-                              height: 80.w,
-                              fit: BoxFit.cover,
-                            ),
+              Expanded(
+                child: FutureBuilder<List<Artikel>>(
+                  future: _artikelFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(child: Text('Tidak ada berita'));
+                    }
+
+                    final newsList = snapshot.data!;
+                    return ListView.builder(
+                      itemCount: newsList.length,
+                      itemBuilder: (context, index) {
+                        final news = newsList[index];
+                        return Container(
+                          margin: EdgeInsets.only(bottom: 16.h),
+                          padding: EdgeInsets.all(12.w),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black),
+                            borderRadius: BorderRadius.circular(20.r),
                           ),
-                          SizedBox(width: 12.w),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  news.title,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14.sp,
-                                  ),
-                                  maxLines: 3,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                SizedBox(height: 6.h),
-                                Text(
-                                  news.date,
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    color: Colors.grey[700],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 12.h),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Action :',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          Row(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              IconButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => const EditNewsScreen(),
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(Icons.edit),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder:
-                                        (context) => AlertDialog(
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              20,
+                              Row(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(12.r),
+                                    child:
+                                        news.imagePath.startsWith('http')
+                                            ? Image.network(
+                                              news.imagePath,
+                                              width: 80.w,
+                                              height: 80.w,
+                                              fit: BoxFit.cover,
+                                            )
+                                            : Image.asset(
+                                              news.imagePath,
+                                              width: 80.w,
+                                              height: 80.w,
+                                              fit: BoxFit.cover,
                                             ),
+                                  ),
+                                  SizedBox(width: 12.w),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          news.title,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14.sp,
                                           ),
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                horizontal: 24,
-                                                vertical: 16,
-                                              ),
-                                          content: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              const Icon(
-                                                Icons.error_outline,
-                                                size: 40,
-                                                color: Colors.black,
-                                              ),
-                                              const SizedBox(height: 16),
-                                              const Text(
-                                                'Are You sure want to delete this news?',
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(fontSize: 16),
-                                              ),
-                                              const SizedBox(height: 24),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceEvenly,
-                                                children: [
-                                                  ElevatedButton(
-                                                    style: ElevatedButton.styleFrom(
-                                                      backgroundColor:
-                                                          Colors.grey,
-                                                      shape: RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              30,
-                                                            ),
-                                                      ),
-                                                    ),
-                                                    onPressed:
-                                                        () => Navigator.pop(
-                                                          context,
-                                                        ),
-                                                    child: const Text(
-                                                      'Cancel',
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  ElevatedButton(
-                                                    style: ElevatedButton.styleFrom(
-                                                      backgroundColor:
-                                                          Colors.blue,
-                                                      shape: RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              30,
-                                                            ),
-                                                      ),
-                                                    ),
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                    },
-                                                    child: const Text(
-                                                      'Yes',
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
+                                          maxLines: 3,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        SizedBox(height: 6.h),
+                                        Text(
+                                          news.date,
+                                          style: TextStyle(
+                                            fontSize: 12.sp,
+                                            color: Colors.grey[700],
                                           ),
                                         ),
-                                  );
-                                },
-                                icon: const Icon(Icons.delete),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 12.h),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Action :',
+                                    style: TextStyle(
+                                      fontSize: 14.sp,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (_) => EditNewsScreen(
+                                                    artikel: news,
+                                                  ),
+                                            ),
+                                          ).then((_) => _refreshList());
+                                        },
+                                        icon: const Icon(Icons.edit),
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder:
+                                                (context) => AlertDialog(
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          20,
+                                                        ),
+                                                  ),
+                                                  contentPadding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 24,
+                                                        vertical: 16,
+                                                      ),
+                                                  content: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      const Icon(
+                                                        Icons.error_outline,
+                                                        size: 40,
+                                                        color: Colors.black,
+                                                      ),
+                                                      const SizedBox(
+                                                        height: 16,
+                                                      ),
+                                                      const Text(
+                                                        'Are you sure you want to delete this news?',
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: TextStyle(
+                                                          fontSize: 16,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(
+                                                        height: 24,
+                                                      ),
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceEvenly,
+                                                        children: [
+                                                          ElevatedButton(
+                                                            style: ElevatedButton.styleFrom(
+                                                              backgroundColor:
+                                                                  Colors.grey,
+                                                              shape: RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      30,
+                                                                    ),
+                                                              ),
+                                                            ),
+                                                            onPressed:
+                                                                () =>
+                                                                    Navigator.pop(
+                                                                      context,
+                                                                    ),
+                                                            child: const Text(
+                                                              'Cancel',
+                                                              style: TextStyle(
+                                                                color:
+                                                                    Colors
+                                                                        .white,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          ElevatedButton(
+                                                            style: ElevatedButton.styleFrom(
+                                                              backgroundColor:
+                                                                  Colors.blue,
+                                                              shape: RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      30,
+                                                                    ),
+                                                              ),
+                                                            ),
+                                                            onPressed:
+                                                                () =>
+                                                                    _deleteArtikel(
+                                                                      context,
+                                                                      news.id,
+                                                                    ),
+                                                            child: const Text(
+                                                              'Yes',
+                                                              style: TextStyle(
+                                                                color:
+                                                                    Colors
+                                                                        .white,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                          );
+                                        },
+                                        icon: const Icon(Icons.delete),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
+                        );
+                      },
+                    );
+                  },
                 ),
               ),
             ],
           ),
         ),
       ),
-
-      // Bottom Button
       bottomNavigationBar: Container(
         padding: EdgeInsets.only(
           bottom: 24.h,

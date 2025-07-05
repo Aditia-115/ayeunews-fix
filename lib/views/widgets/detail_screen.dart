@@ -73,9 +73,7 @@ class _DetailScreenState extends State<DetailScreen> {
                     ),
                     child: IconButton(
                       icon: Icon(
-                        _isBookmarked
-                            ? Icons.bookmark
-                            : Icons.bookmark_border,
+                        _isBookmarked ? Icons.bookmark : Icons.bookmark_border,
                       ),
                       onPressed: _handleBookmarkToggle,
                     ),
@@ -87,11 +85,19 @@ class _DetailScreenState extends State<DetailScreen> {
             // Banner image
             ClipRRect(
               borderRadius: BorderRadius.circular(16.r),
-              child: Image.asset(
+              child: Image.network(
                 widget.imagePath,
                 width: double.infinity,
                 height: 180.h,
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    width: double.infinity,
+                    height: 180.h,
+                    color: Colors.grey[200],
+                    child: const Icon(Icons.broken_image, size: 50),
+                  );
+                },
               ),
             ),
 
@@ -111,23 +117,30 @@ class _DetailScreenState extends State<DetailScreen> {
                         ),
                       ),
                       SizedBox(height: 12.h),
-
                       Text(
                         'Oleh: ${widget.author}',
-                        style: TextStyle(fontSize: 12.sp, color: Colors.grey[800]),
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Colors.grey[800],
+                        ),
                       ),
                       SizedBox(height: 4.h),
                       Text(
                         widget.date,
-                        style: TextStyle(fontSize: 12.sp, color: Colors.grey[800]),
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Colors.grey[800],
+                        ),
                       ),
                       SizedBox(height: 4.h),
                       Text(
                         widget.category,
-                        style: TextStyle(fontSize: 12.sp, color: Colors.grey[800]),
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Colors.grey[800],
+                        ),
                       ),
                       SizedBox(height: 16.h),
-
                       Text(
                         widget.content,
                         style: TextStyle(fontSize: 14.sp, height: 1.6),

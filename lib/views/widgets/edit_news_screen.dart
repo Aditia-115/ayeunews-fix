@@ -1,48 +1,83 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:newshive/services/news_service.dart';
+import 'package:newshive/views/models/artikel.dart';
 
-class EditNewsScreen extends StatelessWidget {
-  const EditNewsScreen({super.key});
+class EditNewsScreen extends StatefulWidget {
+  final Artikel artikel;
+
+  const EditNewsScreen({super.key, required this.artikel});
+
+  @override
+  State<EditNewsScreen> createState() => _EditNewsScreenState();
+}
+
+class _EditNewsScreenState extends State<EditNewsScreen> {
+  final _formKey = GlobalKey<FormState>();
+
+  late TextEditingController _imageController;
+  late TextEditingController _titleController;
+  late TextEditingController _categoryController;
+  late TextEditingController _contentController;
+
+  @override
+  void initState() {
+    super.initState();
+    _imageController = TextEditingController(text: widget.artikel.imagePath);
+    _titleController = TextEditingController(text: widget.artikel.title);
+    _categoryController = TextEditingController(text: widget.artikel.category);
+    _contentController = TextEditingController(text: widget.artikel.content);
+  }
+
+  @override
+  void dispose() {
+    _imageController.dispose();
+    _titleController.dispose();
+    _categoryController.dispose();
+    _contentController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submitEdit() async {
+    if (_formKey.currentState!.validate()) {
+      final success = await ArtikelService.updateNews(
+        id: int.parse(widget.artikel.id),
+        title: _titleController.text.trim(),
+        category: _categoryController.text.trim(),
+        content: _contentController.text.trim(),
+        imageUrl: _imageController.text.trim(),
+      );
+
+      if (!mounted) return;
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Berita berhasil diperbarui')),
+        );
+        Navigator.pop(context, true); // kembalikan status
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Gagal memperbarui berita')),
+        );
+      }
+    }
+  }
+
+  InputDecoration inputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.r)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final imageController = TextEditingController(
-      text: 'https://siagaindonesia.id/wp-content/uploads/2025/05/581638_06243412052025_dedi_mulyadi_1_rmoljab-750x375.jpeg',
-    );
-    final titleController = TextEditingController(
-      text: 'KDM: Antara Iket Sunda, "Gubernur Konten", dan Realitas Kepemimpinan',
-    );
-    final categoryController = TextEditingController(
-      text: 'Politics',
-    );
-    final contentController = TextEditingController(
-      text:
-          'Di panggung politik Jawa Barat, bahkan nasional, nama Kang Dedi Mulyadi (KDM) telah menjadi fenomena tersendiri. '
-          'Sosoknya, yang kini menjabat Gubernur Jawa Barat, tak bisa dilepaskan dari citra kuat yang dibangunnya selama bertahun-tahun: '
-          'perpaduan antara penampilan visual yang khas dengan narasi kepemimpinan yang merakyat dan berakar budaya. '
-          'Namun, di balik popularitas yang meroket, terutama di era media sosial yang menjulukinya "Gubernur Konten", '
-          'terbentang spektrum persepsi publik yang kompleks, dari puja-puji hingga kritik tajam. Menganalisis citra '
-          'KDM melalui lensa visualisasi dan konseptualisasi menjadi penting untuk memahami bagaimana ia dipandang, dan '
-          'apa implikasinya bagi lanskap politik kita.',
-    );
-
-    InputDecoration inputDecoration(String hint) {
-      return InputDecoration(
-        hintText: hint,
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20.r),
-          borderSide: const BorderSide(color: Colors.black),
-        ),
-      );
-    }
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
-            // Header
             Padding(
               padding: EdgeInsets.all(16.w),
               child: Row(
@@ -63,49 +98,63 @@ class EditNewsScreen extends StatelessWidget {
                     child: Center(
                       child: Text(
                         'Edit News',
-                        style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          fontSize: 24.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
-                  SizedBox(width: 40.w), // spacing balance
+                  SizedBox(width: 40.w),
                 ],
               ),
             ),
-
-            // Form
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: Column(
-                  children: [
-                    SizedBox(height: 16.h),
-                    TextFormField(
-                      controller: imageController,
-                      decoration: inputDecoration('URL Picture'),
-                    ),
-                    SizedBox(height: 16.h),
-                    TextFormField(
-                      controller: titleController,
-                      decoration: inputDecoration('Title'),
-                    ),
-                    SizedBox(height: 16.h),
-                    TextFormField(
-                      controller: categoryController,
-                      decoration: inputDecoration('Category'),
-                    ),
-                    SizedBox(height: 16.h),
-                    TextFormField(
-                      controller: contentController,
-                      maxLines: 8,
-                      decoration: inputDecoration('Description'),
-                    ),
-                    SizedBox(height: 100.h), // Extra space for keyboard
-                  ],
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      SizedBox(height: 16.h),
+                      TextFormField(
+                        controller: _imageController,
+                        decoration: inputDecoration('URL Picture'),
+                        validator:
+                            (v) =>
+                                v == null || v.isEmpty ? 'Harus diisi' : null,
+                      ),
+                      SizedBox(height: 16.h),
+                      TextFormField(
+                        controller: _titleController,
+                        decoration: inputDecoration('Title'),
+                        validator:
+                            (v) =>
+                                v == null || v.isEmpty ? 'Harus diisi' : null,
+                      ),
+                      SizedBox(height: 16.h),
+                      TextFormField(
+                        controller: _categoryController,
+                        decoration: inputDecoration('Category'),
+                        validator:
+                            (v) =>
+                                v == null || v.isEmpty ? 'Harus diisi' : null,
+                      ),
+                      SizedBox(height: 16.h),
+                      TextFormField(
+                        controller: _contentController,
+                        maxLines: 8,
+                        decoration: inputDecoration('Description'),
+                        validator:
+                            (v) =>
+                                v == null || v.isEmpty ? 'Harus diisi' : null,
+                      ),
+                      SizedBox(height: 100.h),
+                    ],
+                  ),
                 ),
               ),
             ),
-
-            // Button
             Container(
               padding: EdgeInsets.all(20.w),
               decoration: BoxDecoration(
@@ -115,7 +164,7 @@ class EditNewsScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 56.h,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _submitEdit,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     shape: RoundedRectangleBorder(

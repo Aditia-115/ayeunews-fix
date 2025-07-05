@@ -16,6 +16,17 @@ class Artikel {
     required this.content,
     required this.imagePath,
   });
+  factory Artikel.fromJson(Map<String, dynamic> json) {
+    return Artikel(
+      id: json['id'] ?? '',
+      title: json['title'] ?? '',
+      author: json['author_name'] ?? '',
+      date: json['published_at'] ?? '',
+      category: json['category'] ?? '',
+      content: json['content'] ?? '',
+      imagePath: json['featured_image_url'] ?? '',
+    );
+  }
 
   @override
   bool operator ==(Object other) {
