@@ -13,31 +13,15 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
   final _formKey = GlobalKey<FormState>();
   final _imageController = TextEditingController();
   final _titleController = TextEditingController();
-  final _descriptionController = TextEditingController();
-
-  String? _selectedCategory;
-
-  final List<String> categories = [
-    'Business',
-    'Crime',
-    'Education',
-    'Entertainment',
-    'Health',
-    'Lifestyle',
-    'Politic',
-    'Science',
-    'Sport',
-    'Technology',
-    'Travel',
-  ];
-
-  final String _defaultImageUrl = 'https://via.placeholder.com/150';
+  final _contentController = TextEditingController();
+  final _categoryController = TextEditingController();
 
   @override
   void dispose() {
     _imageController.dispose();
     _titleController.dispose();
-    _descriptionController.dispose();
+    _contentController.dispose();
+    _categoryController.dispose();
     super.dispose();
   }
 
@@ -48,19 +32,15 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
 
   Future<void> _submitNews() async {
     if (_formKey.currentState!.validate()) {
-      final imageUrl =
-          _imageController.text.trim().isEmpty
-              ? _defaultImageUrl
-              : _imageController.text.trim();
-
       final success = await ArtikelService.addNews(
         title: _titleController.text.trim(),
-        category: _selectedCategory!,
-        content: _descriptionController.text.trim(),
-        imageUrl: imageUrl,
+        category: _categoryController.text.trim().toLowerCase(),
+        content: _contentController.text.trim(),
+        imageUrl: _imageController.text.trim(),
       );
 
       if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -68,6 +48,7 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
           ),
         ),
       );
+
       if (success) Navigator.pop(context);
     }
   }
@@ -79,6 +60,7 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            // Header
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
               child: Row(
@@ -110,6 +92,8 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
                 ],
               ),
             ),
+
+            // Form
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
@@ -117,71 +101,54 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
                   key: _formKey,
                   child: Column(
                     children: [
-                      TextFormField(
+                      _buildTextField(
                         controller: _imageController,
-                        decoration: InputDecoration(
-                          hintText: 'URL Picture (optional)',
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 16.w,
-                            vertical: 14.h,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20.r),
-                          ),
-                        ),
+                        hintText: 'URL Picture',
                         validator: (value) {
-                          if (value != null &&
-                              value.isNotEmpty &&
-                              !_isValidUrl(value)) {
-                            return 'Masukkan URL gambar yang valid atau kosongkan';
+                          if (value == null || value.trim().isEmpty) {
+                            return 'URL gambar wajib diisi';
+                          }
+                          if (!_isValidUrl(value.trim())) {
+                            return 'Masukkan URL gambar yang valid';
                           }
                           return null;
                         },
                       ),
                       SizedBox(height: 12.h),
+
                       _buildTextField(
                         controller: _titleController,
                         hintText: 'Title',
                       ),
                       SizedBox(height: 12.h),
-                      DropdownButtonFormField<String>(
-                        value: _selectedCategory,
-                        isExpanded: true,
-                        decoration: InputDecoration(
-                          hintText: 'Select Category',
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 16.w,
-                            vertical: 14.h,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20.r),
-                          ),
-                        ),
-                        items:
-                            categories
-                                .map(
-                                  (c) => DropdownMenuItem(
-                                    value: c,
-                                    child: Text(c),
-                                  ),
-                                )
-                                .toList(),
-                        onChanged:
-                            (val) => setState(() => _selectedCategory = val),
-                        validator:
-                            (val) => val == null ? 'Pilih kategori' : null,
+
+                      _buildTextField(
+                        controller: _categoryController,
+                        hintText: 'Category',
                       ),
                       SizedBox(height: 12.h),
+
                       _buildTextField(
-                        controller: _descriptionController,
-                        hintText: 'Description',
+                        controller: _contentController,
+                        hintText: 'Content',
                         maxLines: 5,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Konten wajib diisi';
+                          }
+                          if (value.trim().length < 10) {
+                            return 'Minimal 10 karakter';
+                          }
+                          return null;
+                        },
                       ),
                     ],
                   ),
                 ),
               ),
             ),
+
+            // Submit Button
             Container(
               padding: EdgeInsets.only(bottom: 20.h, left: 20.w, right: 20.w),
               decoration: BoxDecoration(
@@ -206,9 +173,9 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
                   child: Text(
                     'Publish News',
                     style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
                       color: Colors.white,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -234,13 +201,10 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
         contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.r)),
       ),
-      validator:
-          validator ??
-          (value) {
-            if (value == null || value.trim().isEmpty)
-              return 'Field wajib diisi';
-            return null;
-          },
+      validator: validator ??
+          (value) => value == null || value.trim().isEmpty
+              ? 'Field wajib diisi'
+              : null,
     );
   }
 }

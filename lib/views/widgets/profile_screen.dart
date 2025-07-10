@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:newshive/routes/route_names.dart';
+import 'package:newshive/services/auth_service.dart';
 import 'package:newshive/views/widgets/change_password_screen.dart';
 import 'package:newshive/views/widgets/edit_profile_screen.dart';
 import 'package:newshive/views/widgets/login_screen.dart';
 import 'package:newshive/views/widgets/news_list_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -50,15 +54,15 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 16.h),
 
-                  _profileRow('Name', 'Cody Fisher'),
+                  _profileRow('Name', 'ITG News'),
                   SizedBox(height: 8.h),
-                  _profileRow('Gmail', 'CodyFisher@gmail.com'),
+                  _profileRow('Gmail', 'news@itg.ac.id'),
                   SizedBox(height: 8.h),
-                  _profileRow('Number', '+7-445-557-681'),
+                  _profileRow('Number', '+62 852-2288-4009'),
                   SizedBox(height: 8.h),
                   _profileRow(
                     'Address',
-                    'Ludgate Hill 1, Greater London, London, EC4M 7AA',
+                    'Jl. Mayor Syamsu No. 1, Jayaraga, Kec. Tarogong Kidul, Garut 44151',
                   ),
                 ],
               ),
@@ -124,10 +128,12 @@ class ProfileScreen extends StatelessWidget {
               leading: const Icon(Icons.logout),
               title: const Text('Logout'),
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
-                );
+                Future.microtask(() async {
+                  await AuthService.logout();
+
+                  if (!context.mounted) return;
+                  context.goNamed(RouteNames.login);
+                });
               },
             ),
           ],

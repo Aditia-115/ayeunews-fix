@@ -6,11 +6,11 @@ class EditProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final nameController = TextEditingController(text: 'Cody Fisher');
-    final emailController = TextEditingController(text: 'CodyFisher@gmail.com');
-    final phoneController = TextEditingController(text: '+7-445-557-681');
+    final nameController = TextEditingController(text: 'ITG News');
+    final emailController = TextEditingController(text: 'news@itg.ac.id');
+    final phoneController = TextEditingController(text: '+62 852-2288-4009');
     final addressController = TextEditingController(
-        text: 'Ludgate Hill 1, Greater London, London, EC4M 7AA');
+        text: 'Jl. Mayor Syamsu No. 1, Jayaraga, Kec. Tarogong Kidul, Garut 44151');
 
     return Scaffold(
       backgroundColor: Colors.white,

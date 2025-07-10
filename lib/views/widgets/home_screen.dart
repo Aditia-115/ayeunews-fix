@@ -20,6 +20,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  void refreshArtikel() {
+    setState(() {
+      _artikelFuture = ArtikelService.fetchArtikel();
+    });
+  }
+
   late Future<List<Artikel>> _artikelFuture;
   String query = '';
   String selectedCategory = 'All';
@@ -61,6 +67,13 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: EdgeInsets.only(left: 8.w),
               child: Image.asset('assets/images/logo.png', height: 32.h),
             ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.refresh, color: Colors.black),
+                onPressed: refreshArtikel,
+              ),
+              SizedBox(width: 8.w),
+            ],
           ),
 
           // Search & Carousel from Artikel

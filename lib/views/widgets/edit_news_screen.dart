@@ -41,7 +41,7 @@ class _EditNewsScreenState extends State<EditNewsScreen> {
   Future<void> _submitEdit() async {
     if (_formKey.currentState!.validate()) {
       final success = await ArtikelService.updateNews(
-        id: int.parse(widget.artikel.id),
+        id: widget.artikel.id,
         title: _titleController.text.trim(),
         category: _categoryController.text.trim(),
         content: _contentController.text.trim(),

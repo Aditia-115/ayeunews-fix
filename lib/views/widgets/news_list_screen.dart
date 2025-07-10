@@ -332,7 +332,11 @@ class _NewsListScreenState extends State<NewsListScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const AddNewsScreen()),
-              );
+              ).then((value) {
+                if (value == true) {
+                  _refreshList();
+                }
+              });
             },
             icon: const Icon(Icons.add_circle_outline, color: Colors.white),
             label: const Text(
